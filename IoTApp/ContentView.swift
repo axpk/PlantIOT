@@ -41,7 +41,7 @@ struct ContentView: View {
                 // dataService.fetchData()
             }
             .padding()
-            .navigationTitle("My Plants")
+            .navigationBarHidden(true)
             .onAppear() {
                 dataService.startObserving()
             }
@@ -57,8 +57,19 @@ struct PlantRowView: View {
     
     var body: some View {
         HStack {
-            // Plant Image here
-            VStack(alignment: .leading) {
+            // TODO - Plant Image here
+            // Placeholder image
+            Circle()
+                .fill(Color.green)
+                .frame(width: 50, height: 50)
+                .overlay(Text(plant.name.prefix(1))
+                    .font(.headline)
+                    .foregroundColor(.white)
+                )
+                .padding(.trailing, 8)
+            
+            
+            VStack(alignment: .leading, spacing: 4) {
                 Text(plant.name)
                     .font(.headline)
                 Text("Plant Type")
@@ -66,20 +77,27 @@ struct PlantRowView: View {
                     .foregroundColor(.gray)
             }
             Spacer()
-            VStack {
-                HStack {
+            VStack(alignment: .trailing, spacing: 8) {
+                HStack(spacing: 4) {
                     Image(systemName: "sun.max.fill")
-                    Text("Light level %")
+                        .foregroundColor(.yellow)
+                    Text("\(plant.lightLevel)%")
+                        .font(.subheadline)
                 }
-                HStack {
-                    Text("Humidity Level")
+                HStack(spacing: 4) {
+                    Image(systemName: "humidity.fill")
+                        .foregroundColor(.gray)
+                    Text("75")
+                        .font(.subheadline)
                 }
-                HStack {
+                HStack(spacing: 4) {
                     Image(systemName: "drop.fill")
-                    Text("Moisture level")
+                        .foregroundColor(.blue)
+                    Text("50%")
+                        .font(.subheadline)
                 }
             }
-            .foregroundColor(.blue)
+            .padding(.leading, 8)
         }
         .padding(.vertical, 8)
     }
