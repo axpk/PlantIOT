@@ -11,5 +11,7 @@ struct Plant: Identifiable {
 }
 
 let samplePlants = [
-    Plant(name: "Testing", image: "placeholder", lightLevel: 30, humidity: 20.0, soilMoisture: 10.0, minSoilMoisture: 10.0)
+    Plant(name: "Succulent", image: "placeholder", lightLevel: 30, humidity: 20.0, soilMoisture: 10.0, minSoilMoisture: 10.0),
+    Plant(name: "Bonsai", image: "placeholder", lightLevel: 30, humidity: 20.0, soilMoisture: 10.0, minSoilMoisture: 10.0),
+    Plant(name: "Monsterra", image: "placeholder", lightLevel: 30, humidity: 20.0, soilMoisture: 10.0, minSoilMoisture: 10.0)
 ]

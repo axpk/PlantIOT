@@ -4,60 +4,62 @@ struct ContentView: View {
     @StateObject private var dataService = DataService()
     
     let name = "Name"
+    var plants = samplePlants
     
     var body: some View {
-        VStack (alignment: .leading) {
-            Text("Hello \(name)!")
-                .font(.title)
-                .bold()
-            
-            Text("Plants")
-                .font(.headline)
-                .padding(.top)
-            
-            ScrollView {
+        NavigationView {
+            VStack (alignment: .leading) {
+                Text("Hello \(name)!")
+                    .font(.title)
+                    .bold()
                 
+                Text("Plants")
+                    .font(.headline)
+                    .padding(.top)
+                
+                ScrollView {
+                    ForEach(plants) { plant in
+                        NavigationLink (destination: PlantDetailView(plant: plant)) {
+                            PlantRowView(plant: plant)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+                
+                Button(action: {
+                    // TODO: Handle button
+                }) {
+                    Text("+ Add a Plant")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.green)
+                        .padding()
+                        .cornerRadius(10)
+                }
+                .padding(.top, 16)
+                // dataService.fetchData()
             }
-            
-            Button(action: {}) {
-                Text("+ Add a Plant")
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.green)
-                    .padding()
-                    .cornerRadius(10)
+            .padding()
+            .navigationTitle("My Plants")
+            .onAppear() {
+                dataService.startObserving()
             }
-            
-            
-//            Text("Current Value: \(dataService.currentHumidity)")
-//                .font(.largeTitle)
-//                .padding()
-//            Button(action: {
-//                dataService.fetchData()
-//            }) {
-//                Text("Fetch Data")
-//                    .font(.title2)
-//                    .padding()
-//                    .background(Color.blue)
-//                    .foregroundColor(.white)
-//                    .cornerRadius(10)
-//            }
-        }
-        .padding()
-        .onAppear() {
-            dataService.startObserving()
-        }
-        .onDisappear() {
-            dataService.stopObserving()
+            .onDisappear() {
+                dataService.stopObserving()
+            }
         }
     }
 }
 
 struct PlantRowView: View {
+    var plant: Plant
+    
     var body: some View {
         HStack {
+            // Plant Image here
             VStack(alignment: .leading) {
-                Text("Plant name")
+                Text(plant.name)
                     .font(.headline)
                 Text("Plant Type")
                     .font(.subheadline)
@@ -66,18 +68,20 @@ struct PlantRowView: View {
             Spacer()
             VStack {
                 HStack {
+                    Image(systemName: "sun.max.fill")
                     Text("Light level %")
                 }
                 HStack {
                     Text("Humidity Level")
                 }
                 HStack {
+                    Image(systemName: "drop.fill")
                     Text("Moisture level")
                 }
             }
-            
+            .foregroundColor(.blue)
         }
-        .padding(.vertical, 0)
+        .padding(.vertical, 8)
     }
 }
 
