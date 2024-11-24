@@ -14,6 +14,7 @@ struct PlantDetailView: View {
                             .bold()
                         Text("Last diagnosis: 10m ago")
                             .font(.subheadline)
+                            .foregroundColor(.gray)
                     }
                     Spacer()
                     Image(plant.image)
@@ -23,17 +24,26 @@ struct PlantDetailView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 
-                
                 // Status section
                 Text("Current Levels")
                     .font(.headline)
-                HStack(spacing: 20) {
-                    statusIconView(icon: "sun.max.fill", color: .yellow, value: String(plant.lightLevel) + "%", progress: Double(plant.lightLevel) / 100.0)
-                    statusIconView(icon: "humidity.fill", color: .gray, value: String(format: "%.0f%%", plant.humidity), progress: plant.humidity / plant.requirements.expectedHumidity)
-                    statusIconView(icon: "drop.fill", color: .blue, value: String(format: "%.0f%%", plant.soilMoisture), progress: plant.soilMoisture / plant.requirements.moistureLevel)
+                VStack {
+                    HStack {
+                        currentCardView(icon: "sun.max.fill", color: .yellow,
+                                        title: "Light", currentValue: String(plant.lightLevel) + " lumens")
+                        
+                        currentCardView(icon: "drop.fill", color: .blue,
+                                        title: "Soil Moisture", currentValue: String(plant.soilMoisture))
+                    }
+                    HStack {
+                        let humidityRange = rangeBarView(icon: "humidity.fill", color: .gray, currentValue: plant.humidity, range: (min: plant.requirements.expectedHumidity - 10, max: plant.requirements.expectedHumidity + 10))
+                        let temperatureRange = rangeBarView(icon: "thermometer.medium", color: .green, currentValue: plant.temperature, range: (min: plant.requirements.temperatureRange[0], max: plant.requirements.temperatureRange[1]), isTemperature: true)
+                        
+                        currentCardView(icon: "humidity.fill", color: .gray, title: "Humidity", currentValue: String(plant.humidity), range: humidityRange, requiresRange: true)
+                        currentCardView(icon: "thermometer.medium", color: .green, title: "Temperature", currentValue: String(plant.temperature), range: temperatureRange, requiresRange: true)
+                    }
+                     
                 }
-                .padding(.vertical, 10)
-                
 
                 // Info section
                 Text("Information")
@@ -44,25 +54,33 @@ struct PlantDetailView: View {
                 // Requirements section
                 Text("Requirements")
                     .font(.headline)
-                HStack(spacing: 16) {
-                    RequirementCardView(
-                        icon: "sun.max.fill",
-                        color: .yellow,
-                        title: "Light",
-                        requirementValue: String(plant.requirements.lightPerDay) + " hrs a day"
-                    )
-                    RequirementCardView(
-                        icon: "humidity.fill",
-                        color: .gray,
-                        title: "Humidity",
-                        requirementValue: String(plant.requirements.expectedHumidity) + "%"
-                    )
-                    RequirementCardView(
-                        icon: "drop.fill",
-                        color: .blue,
-                        title: "Moisture",
-                        requirementValue: String(plant.requirements.moistureLevel) + "%"
-                    )
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        RequirementCardView(
+                            icon: "sun.max.fill",
+                            color: .yellow,
+                            title: "Light",
+                            requirementValue: String(plant.requirements.lightPerDay) + " hrs a day"
+                        )
+                        RequirementCardView(
+                            icon: "humidity.fill",
+                            color: .gray,
+                            title: "Humidity",
+                            requirementValue: String(plant.requirements.expectedHumidity) + "%"
+                        )
+                        RequirementCardView(
+                            icon: "drop.fill",
+                            color: .blue,
+                            title: "Moisture",
+                            requirementValue: String(plant.requirements.moistureLevel) + "%"
+                        )
+                        RequirementCardView(
+                            icon: "thermometer.medium",
+                            color: .green,
+                            title: "Temperature Range (C)",
+                            requirementValue: String(plant.requirements.temperatureRange[0]) + "-" + String(plant.requirements.temperatureRange[1])
+                        )
+                    }
                 }
             }
             .padding()
@@ -70,37 +88,99 @@ struct PlantDetailView: View {
         .navigationTitle(plant.name)
         .navigationBarTitleDisplayMode(.inline)
     }
+    
+    
 }
 
-struct statusIconView: View {
-    
+struct statusCircleView: View {
+    var body: some View {
+        VStack {
+            
+        }
+    }
+}
+
+struct rangeBarView: View {
     var icon: String
     var color: Color
-    var value: String
-    var progress: Double
+    var currentValue: Double
+    var range: (min: Double, max: Double)
+    var isTemperature: Bool = false
     
     var body: some View {
-        ZStack {
-            // background circle
-            Circle()
-                .stroke(Color(.systemGray4), lineWidth: 6)
-                .frame(width: 80, height: 80)
-            // progress circle
-            Circle()
-                .trim(from: 0, to: CGFloat(progress))
-                .stroke(color, lineWidth: 6)
-                .rotationEffect(.degrees(-90))
-                .frame(width: 80, height: 80)
-            
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(color)
-                Text(value)
-                    .font(.headline)
+        VStack(alignment: .leading, spacing: 8) {
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(Color(dynamicColor).opacity(0.6))
+                    .frame(height: 8)
+                Circle()
+                    .fill(dynamicColor)
+                    .frame(width: 12)
+                    .offset(x: calculateProgressOffset())
             }
-            .frame(maxWidth: .infinity)
+            HStack {
+                Text("\(String(format: "%.1f", range.min))")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                Spacer()
+                Text("\(String(format: "%.1f", range.max))")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
         }
+        .padding()
+    }
+    
+    private var dynamicColor: Color {
+        if isTemperature {
+            if currentValue < range.min {
+                return .blue
+            } else if currentValue > range.max {
+                return .red
+            } else {
+                return color
+            }
+        } else {
+            return color
+        }
+    }
+    
+    private func calculateProgressWidth() -> CGFloat {
+        let progress = (currentValue - range.min) / (range.max - range.min)
+        let clampedProgress = max(0, min(1, progress))
+        return clampedProgress * 200
+    }
+    private func calculateProgressOffset() -> CGFloat {
+        let progress = (currentValue - range.min) / (range.max - range.min)
+        let clampedProgress = max(0, min(1, progress))
+        return clampedProgress * 200 - 6 // 6 is half 12
+    }
+}
+
+struct currentCardView: View {
+    var icon: String
+    var color: Color
+    var title: String
+    var currentValue: String
+    var range: rangeBarView?
+    var requiresRange: Bool = false
+    
+    var body: some View {
+        VStack (spacing: 8) {
+            Image(systemName: icon)
+                .foregroundColor(color)
+            Text(title)
+                .font(.headline)
+            Text("\(currentValue)")
+                .font(.subheadline)
+            if requiresRange {
+                range
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 100)
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(10)
     }
 }
 

@@ -4,20 +4,20 @@ import Combine
 struct DataModel: Codable {
     let humidity: Double
     let temperature: Double
-    let light: Int
-    let waterlevel: Double
+    let lightLevel: Int
+    let moistureLevel: Double
 }
 
 class DataService: ObservableObject {
     @Published var currentHumidity: Double = 0
     @Published var currentTemp: Double = 0
     @Published var currentLight: Int = 0
-    @Published var currentWaterLevel: Double = 0
+    @Published var currentMoistureLevel: Double = 0
 
     private var timer: AnyCancellable?
     private var cancellables = Set<AnyCancellable>()
     
-//    let urlString = "http://localhost:3000/data" // Change to arduino data
+//    let urlString = "http://localhost:3000/data" // Test server data
     let urlString = "http://10.251.158.108" // Change to arduino data
 
     init() {
@@ -67,8 +67,8 @@ class DataService: ObservableObject {
             }, receiveValue: { [weak self] decodedData in
                 self?.currentHumidity = decodedData.humidity
                 self?.currentTemp = decodedData.temperature
-                self?.currentLight = decodedData.light
-                self?.currentWaterLevel = decodedData.waterlevel
+                self?.currentLight = decodedData.lightLevel
+                self?.currentMoistureLevel = decodedData.moistureLevel
                 self?.checkThreshold()
             })
             .store(in: &cancellables)

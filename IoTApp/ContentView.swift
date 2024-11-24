@@ -3,17 +3,33 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var dataService = DataService()
     
-    let name = "Name"
+    let name = "John"
     var plants = samplePlants
     
     var body: some View {
         NavigationView {
             VStack (alignment: .leading) {
-                Text("Hello \(name)!")
-                    .font(.title)
-                    .bold()
-                
-                Text("Plants")
+                HStack {
+                    Text("Hello, \(name)!")
+                        .font(.title)
+                        .bold()
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        // TODO: Handle button
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 40)
+                            Image(systemName: "plus")
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+                                
+                Text("Your Plants")
                     .font(.headline)
                     .padding(.top)
                 
@@ -26,18 +42,7 @@ struct ContentView: View {
                     }
                 }
                 
-                Button(action: {
-                    // TODO: Handle button
-                }) {
-                    Text("+ Add a Plant")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.green)
-                        .padding()
-                        .cornerRadius(10)
-                }
-                .padding(.top, 16)
+                
                 // dataService.fetchData()
             }
             .padding()
@@ -60,7 +65,7 @@ struct PlantRowView: View {
             // TODO - Plant Image here
             // Placeholder image
             Circle()
-                .fill(Color.green)
+                .fill(Color.gray)
                 .frame(width: 50, height: 50)
                 .overlay(Text(plant.name.prefix(1))
                     .font(.headline)
@@ -87,13 +92,13 @@ struct PlantRowView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "humidity.fill")
                         .foregroundColor(.gray)
-                    Text("75")
+                    Text(String(format: "%.0f%%", plant.humidity))
                         .font(.subheadline)
                 }
                 HStack(spacing: 4) {
                     Image(systemName: "drop.fill")
                         .foregroundColor(.blue)
-                    Text("50%")
+                    Text(String(format: "%.0f%%", plant.soilMoisture))
                         .font(.subheadline)
                 }
             }
