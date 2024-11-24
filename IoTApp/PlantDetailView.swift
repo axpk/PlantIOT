@@ -145,11 +145,6 @@ struct rangeBarView: View {
         }
     }
     
-    private func calculateProgressWidth() -> CGFloat {
-        let progress = (currentValue - range.min) / (range.max - range.min)
-        let clampedProgress = max(0, min(1, progress))
-        return clampedProgress * 200
-    }
     private func calculateProgressOffset() -> CGFloat {
         let progress = (currentValue - range.min) / (range.max - range.min)
         let clampedProgress = max(0, min(1, progress))
