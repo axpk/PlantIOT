@@ -26,11 +26,6 @@ class NotificationManager {
         
         let timeInterval: TimeInterval = 1
         
-        guard timeInterval > 0 else {
-            print("Invalid time interval for notif trigger")
-            return
-        }
-        
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request) { error in

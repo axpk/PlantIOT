@@ -29,11 +29,14 @@ struct PlantDetailView: View {
                     .font(.headline)
                 VStack {
                     HStack {
+                        let waterBox = statusBoxView(color: .blue, currentValue: plant.soilMoisture, expectedValue: plant.requirements.moistureLevel)
+                        let lightBox = statusBoxView(color: .yellow, currentValue: Double(plant.lightLevel), expectedValue: Double(plant.requirements.lightPerDay))
+
                         currentCardView(icon: "sun.max.fill", color: .yellow,
-                                        title: "Light", currentValue: String(plant.lightLevel) + " lumens")
+                                        title: "Light", currentValue: String(plant.lightLevel) + " hrs", boxStatus: lightBox, requiresBox: true)
                         
                         currentCardView(icon: "drop.fill", color: .blue,
-                                        title: "Soil Moisture", currentValue: String(plant.soilMoisture))
+                                        title: "Soil Moisture", currentValue: String(plant.soilMoisture), boxStatus: waterBox, requiresBox: true)
                     }
                     HStack {
                         let humidityRange = rangeBarView(icon: "humidity.fill", color: .gray, currentValue: plant.humidity, range: (min: plant.requirements.expectedHumidity - 10, max: plant.requirements.expectedHumidity + 10))
@@ -42,7 +45,6 @@ struct PlantDetailView: View {
                         currentCardView(icon: "humidity.fill", color: .gray, title: "Humidity", currentValue: String(plant.humidity), range: humidityRange, requiresRange: true)
                         currentCardView(icon: "thermometer.medium", color: .green, title: "Temperature", currentValue: String(plant.temperature), range: temperatureRange, requiresRange: true)
                     }
-                     
                 }
 
                 // Info section
@@ -92,11 +94,28 @@ struct PlantDetailView: View {
     
 }
 
-struct statusCircleView: View {
+struct statusBoxView: View {
+    
+    var color: Color
+    var currentValue: Double
+    var expectedValue: Double
     var body: some View {
-        VStack {
-            
+        ZStack(alignment: .bottom) {
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color(.systemGray4))
+                .frame(width: 20, height: 60)
+            RoundedRectangle(cornerRadius: 6)
+                .fill(color)
+                .frame(width: 20, height: calculateProgressOffset())
+                .offset(y: 10)
         }
+        .padding(6)
+    }
+    
+    private func calculateProgressOffset() -> CGFloat {
+        let progress = currentValue / expectedValue
+        let clampedProgress = max(0, min(1, progress))
+        return clampedProgress * 60
     }
 }
 
@@ -111,7 +130,7 @@ struct rangeBarView: View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(Color(dynamicColor).opacity(0.6))
+                    .fill(dynamicColor.opacity(0.6))
                     .frame(height: 8)
                 Circle()
                     .fill(dynamicColor)
@@ -133,9 +152,9 @@ struct rangeBarView: View {
     
     private var dynamicColor: Color {
         if isTemperature {
-            if currentValue < range.min {
+            if currentValue < range.min + 2 {
                 return .blue
-            } else if currentValue > range.max {
+            } else if currentValue > range.max - 2 {
                 return .red
             } else {
                 return color
@@ -159,17 +178,25 @@ struct currentCardView: View {
     var currentValue: String
     var range: rangeBarView?
     var requiresRange: Bool = false
+    var boxStatus: statusBoxView?
+    var requiresBox: Bool = false
     
     var body: some View {
         VStack (spacing: 8) {
             Image(systemName: icon)
                 .foregroundColor(color)
-            Text(title)
-                .font(.headline)
-            Text("\(currentValue)")
-                .font(.subheadline)
+            HStack {
+                Text(title)
+                    .font(.headline)
+                Text("\(currentValue)")
+                    .font(.subheadline)
+                
+            }
             if requiresRange {
                 range
+            }
+            if requiresBox {
+                boxStatus
             }
         }
         .frame(maxWidth: .infinity, minHeight: 100)
