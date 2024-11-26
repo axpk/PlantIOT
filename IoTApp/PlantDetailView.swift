@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct PlantDetailView: View {
-    var plant: Plant
+    @ObservedObject var dataService = DataService()
+    let plantIndex: Int
     
     var body: some View {
+        let plant = dataService.plants[plantIndex]
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Plant Overview Section
@@ -43,7 +45,7 @@ struct PlantDetailView: View {
                         let temperatureRange = rangeBarView(icon: "thermometer.medium", color: .green, currentValue: plant.temperature, range: (min: plant.requirements.temperatureRange[0], max: plant.requirements.temperatureRange[1]), isTemperature: true)
                         
                         currentCardView(icon: "humidity.fill", color: .gray, title: "Humidity", currentValue: String(plant.humidity), range: humidityRange, requiresRange: true)
-                        currentCardView(icon: "thermometer.medium", color: .green, title: "Temperature", currentValue: String(plant.temperature), range: temperatureRange, requiresRange: true)
+                        currentCardView(icon: "thermometer.medium", color: .green, title: "Temp", currentValue: String(plant.temperature) + " C", range: temperatureRange, requiresRange: true)
                     }
                 }
 
@@ -89,6 +91,11 @@ struct PlantDetailView: View {
         }
         .navigationTitle(plant.name)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            if plantIndex == 0 {
+                dataService.fetchData()
+            }
+        }
     }
     
     
@@ -229,5 +236,5 @@ struct RequirementCardView: View {
 }
 
 #Preview {
-    PlantDetailView(plant: samplePlants[0])
+    PlantDetailView(plantIndex: 0)
 }

@@ -4,7 +4,6 @@ struct ContentView: View {
     @StateObject private var dataService = DataService()
     
     let name = "John"
-    var plants = samplePlants
     
     var body: some View {
         NavigationView {
@@ -34,16 +33,13 @@ struct ContentView: View {
                     .padding(.top)
                 
                 ScrollView {
-                    ForEach(plants) { plant in
-                        NavigationLink (destination: PlantDetailView(plant: plant)) {
-                            PlantRowView(plant: plant)
+                    ForEach(dataService.plants.indices, id: \.self) { index in
+                        NavigationLink (destination: PlantDetailView(dataService: dataService, plantIndex: index)) {
+                            PlantRowView(plant: dataService.plants[index])
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
                 }
-                
-                
-                // dataService.fetchData()
             }
             .padding()
             .navigationBarHidden(true)
@@ -84,9 +80,9 @@ struct PlantRowView: View {
             Spacer()
             VStack(alignment: .trailing, spacing: 8) {
                 HStack(spacing: 4) {
-                    Image(systemName: "sun.max.fill")
-                        .foregroundColor(.yellow)
-                    Text("\(plant.lightLevel)%")
+                    Image(systemName: "thermometer.medium")
+                        .foregroundColor(.orange)
+                    Text(String(format: "%.0f%", plant.temperature) + " C")
                         .font(.subheadline)
                 }
                 HStack(spacing: 4) {

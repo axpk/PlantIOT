@@ -9,10 +9,10 @@ struct DataModel: Codable {
 }
 
 class DataService: ObservableObject {
-    @Published var currentHumidity: Double = 0
-    @Published var currentTemp: Double = 0
-    @Published var currentLight: Int = 0
-    @Published var currentMoistureLevel: Double = 0
+    @Published var plants: [Plant] = samplePlants
+    
+    @Published var accumulatedLightHours: Double = 0.0
+    private var lastResetTime: Date = Date()
 
     private var timer: AnyCancellable?
     private var cancellables = Set<AnyCancellable>()
@@ -65,20 +65,32 @@ class DataService: ObservableObject {
                     print("Error fetching data: \(error)")
                 }
             }, receiveValue: { [weak self] decodedData in
-                self?.currentHumidity = decodedData.humidity
-                self?.currentTemp = decodedData.temperature
-                self?.currentLight = decodedData.lightLevel
-                self?.currentMoistureLevel = decodedData.moistureLevel
+                self?.plants[0].lightLevel = Int(decodedData.lightLevel)
+                self?.plants[0].humidity = decodedData.humidity
+                self?.plants[0].temperature = decodedData.temperature
+                self?.plants[0].soilMoisture = decodedData.moistureLevel
                 self?.checkThreshold()
             })
             .store(in: &cancellables)
     }
     
     func checkThreshold() {
-        let threshold: Double = 100 // TODO - change to actual values
-        if currentHumidity > threshold {
-            NotificationManager.shared.scheduleNotification(title: "Threshold Alert", body: "Value Exceeded \(threshold): \(currentHumidity)")
+        
+        // Soil Moisture
+        if plants[0].soilMoisture < min(5, plants[0].requirements.moistureLevel * 0.1) {
+            NotificationManager.shared.scheduleNotification(title: "\(plants[0].name) needs water", body: "Soil moisture dropped below 5")
         }
+        
+        // Temperature
+        if (plants[0].temperature < plants[0].requirements.temperatureRange[0]) {
+            NotificationManager.shared.scheduleNotification(title: "\(plants[0].name) is too cold!", body: "Temp dropped below \(plants[0].requirements.temperatureRange[0])")
+        }
+        if (plants[0].temperature > plants[0].requirements.temperatureRange[1]) {
+            NotificationManager.shared.scheduleNotification(title: "\(plants[0].name) is too hot!", body: "Temp went above \(plants[0].requirements.temperatureRange[1])")
+        }
+        
+        // TODO - do light
+        
     }
     
 }

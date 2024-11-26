@@ -2,21 +2,21 @@ import Foundation
 
 struct Plant: Identifiable {
     let id = UUID()
-    let name: String
+    var name: String
     var description: String = "Description"
-    let image: String
-    let lightLevel: Int
-    let temperature: Double
-    let humidity: Double
-    let soilMoisture: Double
-    let requirements: Requirement
+    var image: String
+    var lightLevel: Int
+    var temperature: Double
+    var humidity: Double
+    var soilMoisture: Double
+    var requirements: Requirement
 }
 
 struct Requirement {
-    let lightPerDay: Int
-    let expectedHumidity: Double
-    let moistureLevel: Double
-    let temperatureRange: Array<Double>
+    var lightPerDay: Int
+    var expectedHumidity: Double
+    var moistureLevel: Double
+    var temperatureRange: Array<Double>
 }
 
 let samplePlants = [
