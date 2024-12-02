@@ -14,6 +14,7 @@ struct Plant: Identifiable {
     var lightTracker: LightTracker? = nil
     
     func currentLightHours() -> Int {
+        lightTracker?.updateLight(currentLight: lightLevel)
         return lightTracker?.getTotalLightHours() ?? 0
     }
 }

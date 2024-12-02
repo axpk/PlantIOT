@@ -32,7 +32,7 @@ struct PlantDetailView: View {
                 VStack {
                     HStack {
                         let waterBox = statusBoxView(color: .blue, currentValue: plant.soilMoisture, expectedValue: plant.requirements.moistureLevel)
-                        let lightBox = statusBoxView(color: .yellow, currentValue: Double(plant.lightLevel), expectedValue: Double(plant.requirements.lightPerDay))
+                        let lightBox = statusBoxView(color: .yellow, currentValue: Double(plant.currentLightHours()), expectedValue: Double(plant.requirements.lightPerDay))
                         
                         currentCardView(icon: "sun.max.fill", color: .yellow,
                                         title: "Light", currentValue: String(plant.currentLightHours()) + " hrs", boxStatus: lightBox, requiresBox: true)
@@ -102,7 +102,6 @@ struct PlantDetailView: View {
 }
 
 struct statusBoxView: View {
-    
     var color: Color
     var currentValue: Double
     var expectedValue: Double
