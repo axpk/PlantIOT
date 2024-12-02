@@ -82,7 +82,7 @@ struct PlantRowView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "thermometer.medium")
                         .foregroundColor(.orange)
-                    Text(String(format: "%.0f%", plant.temperature) + " C")
+                    Text(String(format: "%.0f%", plant.temperature) + " F")
                         .font(.subheadline)
                 }
                 HStack(spacing: 4) {

@@ -5,7 +5,7 @@ struct PlantDetailView: View {
     let plantIndex: Int
     
     var body: some View {
-        let plant = dataService.plants[plantIndex]
+        var plant = dataService.plants[plantIndex]
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Plant Overview Section
@@ -14,7 +14,7 @@ struct PlantDetailView: View {
                         Text(plant.name)
                             .font(.largeTitle)
                             .bold()
-                        Text("Last diagnosis: 10m ago")
+                        Text("Last diagnosis: \(plant.lastUpdated)")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                     }
@@ -33,19 +33,19 @@ struct PlantDetailView: View {
                     HStack {
                         let waterBox = statusBoxView(color: .blue, currentValue: plant.soilMoisture, expectedValue: plant.requirements.moistureLevel)
                         let lightBox = statusBoxView(color: .yellow, currentValue: Double(plant.lightLevel), expectedValue: Double(plant.requirements.lightPerDay))
-
-                        currentCardView(icon: "sun.max.fill", color: .yellow,
-                                        title: "Light", currentValue: String(plant.lightLevel) + " hrs", boxStatus: lightBox, requiresBox: true)
                         
+                        currentCardView(icon: "sun.max.fill", color: .yellow,
+                                        title: "Light", currentValue: String(plant.currentLightHours()) + " hrs", boxStatus: lightBox, requiresBox: true)
+
                         currentCardView(icon: "drop.fill", color: .blue,
-                                        title: "Soil Moisture", currentValue: String(plant.soilMoisture), boxStatus: waterBox, requiresBox: true)
+                                        title: "Moisture", currentValue: String(plant.soilMoisture), boxStatus: waterBox, requiresBox: true)
                     }
                     HStack {
                         let humidityRange = rangeBarView(icon: "humidity.fill", color: .gray, currentValue: plant.humidity, range: (min: plant.requirements.expectedHumidity - 10, max: plant.requirements.expectedHumidity + 10))
                         let temperatureRange = rangeBarView(icon: "thermometer.medium", color: .green, currentValue: plant.temperature, range: (min: plant.requirements.temperatureRange[0], max: plant.requirements.temperatureRange[1]), isTemperature: true)
                         
                         currentCardView(icon: "humidity.fill", color: .gray, title: "Humidity", currentValue: String(plant.humidity), range: humidityRange, requiresRange: true)
-                        currentCardView(icon: "thermometer.medium", color: .green, title: "Temp", currentValue: String(plant.temperature) + " C", range: temperatureRange, requiresRange: true)
+                        currentCardView(icon: "thermometer.medium", color: .green, title: "Temp", currentValue: String(plant.temperature) + " F", range: temperatureRange, requiresRange: true)
                     }
                 }
 
@@ -81,7 +81,7 @@ struct PlantDetailView: View {
                         RequirementCardView(
                             icon: "thermometer.medium",
                             color: .green,
-                            title: "Temperature Range (C)",
+                            title: "Temperature Range (F)",
                             requirementValue: String(plant.requirements.temperatureRange[0]) + "-" + String(plant.requirements.temperatureRange[1])
                         )
                     }
@@ -136,13 +136,18 @@ struct rangeBarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(dynamicColor.opacity(0.6))
-                    .frame(height: 8)
-                Circle()
-                    .fill(dynamicColor)
-                    .frame(width: 12)
-                    .offset(x: calculateProgressOffset())
+                GeometryReader { geometry in
+                    Capsule()
+                        .fill(dynamicColor.opacity(0.6))
+                        .frame(height: 8)
+                    Circle()
+                        .stroke(Color.white.opacity(0.8), lineWidth: 2)
+                        .fill(dynamicColor)
+                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
+                        .frame(width: 16)
+                        .offset(x: calculateProgressOffset(barWidth: geometry.size.width))
+                }
+                .frame(height: 8)
             }
             HStack {
                 Text("\(String(format: "%.1f", range.min))")
@@ -171,10 +176,10 @@ struct rangeBarView: View {
         }
     }
     
-    private func calculateProgressOffset() -> CGFloat {
+    private func calculateProgressOffset(barWidth: CGFloat) -> CGFloat {
         let progress = (currentValue - range.min) / (range.max - range.min)
         let clampedProgress = max(0, min(1, progress))
-        return clampedProgress * 200 - 6 // 6 is half 12
+        return clampedProgress * barWidth - 6 // 6 is half 12
     }
 }
 
@@ -187,6 +192,7 @@ struct currentCardView: View {
     var requiresRange: Bool = false
     var boxStatus: statusBoxView?
     var requiresBox: Bool = false
+    var isLight: Bool = false
     
     var body: some View {
         VStack (spacing: 8) {
