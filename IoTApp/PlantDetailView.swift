@@ -31,14 +31,14 @@ struct PlantDetailView: View {
                     .font(.headline)
                 VStack {
                     HStack {
-                        let waterBox = statusBoxView(color: .blue, currentValue: plant.soilMoisture, expectedValue: plant.requirements.moistureLevel)
+                        let waterBox = statusBoxView(color: .blue, currentValue: plant.getSoilMoisture(), expectedValue: 100.0)
                         let lightBox = statusBoxView(color: .yellow, currentValue: Double(plant.currentLightHours()), expectedValue: Double(plant.requirements.lightPerDay))
                         
                         currentCardView(icon: "sun.max.fill", color: .yellow,
                                         title: "Light", currentValue: String(plant.currentLightHours()) + " hrs", boxStatus: lightBox, requiresBox: true)
 
                         currentCardView(icon: "drop.fill", color: .blue,
-                                        title: "Moisture", currentValue: String(plant.soilMoisture), boxStatus: waterBox, requiresBox: true)
+                                        title: "Moisture", currentValue: String(plant.getSoilMoisture()), boxStatus: waterBox, requiresBox: true)
                     }
                     HStack {
                         let humidityRange = rangeBarView(icon: "humidity.fill", color: .gray, currentValue: plant.humidity, range: (min: plant.requirements.expectedHumidity - 10, max: plant.requirements.expectedHumidity + 10))

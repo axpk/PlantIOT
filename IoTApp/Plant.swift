@@ -13,6 +13,16 @@ struct Plant: Identifiable {
     var lastUpdated: Date
     var lightTracker: LightTracker? = nil
     
+    func getSoilMoisture() -> Double { // TODO
+        let dryLevel = 650.0
+        let wetLevel = 400.0
+        
+        let clampedMoisture = max(wetLevel, min(soilMoisture, dryLevel))
+        let normalizedMoisture = ((dryLevel - clampedMoisture) / (dryLevel - wetLevel)) * 100
+        
+        return normalizedMoisture
+    }
+    
     func currentLightHours() -> Int {
         lightTracker?.updateLight(currentLight: lightLevel)
         return lightTracker?.getTotalLightHours() ?? 0
