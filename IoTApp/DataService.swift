@@ -78,8 +78,8 @@ class DataService: ObservableObject {
     func checkThreshold() {
         
         // Soil Moisture
-        if plants[0].soilMoisture < min(5, plants[0].requirements.moistureLevel * 0.1) {
-            NotificationManager.shared.scheduleNotification(title: "\(plants[0].name) needs water", body: "Soil moisture dropped below 5")
+        if plants[0].getSoilMoisture() < 5.0 {
+            NotificationManager.shared.scheduleNotification(title: "\(plants[0].name) needs water", body: "Soil moisture dropped below 5%")
         }
         
         // Temperature
@@ -90,9 +90,5 @@ class DataService: ObservableObject {
             NotificationManager.shared.scheduleNotification(title: "\(plants[0].name) is too hot!", body: "Temp went above \(plants[0].requirements.temperatureRange[1])")
         }
         
-        // TODO - do light
-        
     }
-    
 }
-

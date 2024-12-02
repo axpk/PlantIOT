@@ -94,7 +94,7 @@ struct PlantRowView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "drop.fill")
                         .foregroundColor(.blue)
-                    Text(String(format: "%.0f%%", plant.soilMoisture))
+                    Text(String(format: "%.0f%%", plant.getSoilMoisture()))
                         .font(.subheadline)
                 }
             }
